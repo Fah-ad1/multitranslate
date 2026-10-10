@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Multi Translator (Banglish, Bangla, Swahili, English)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans transition-colors duration-200 flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center 
+                justify-center text-white shadow-md shadow-indigo-500/20">
+                    <i class="fa-solid fa-language text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">
+                        Multi Translator By ABU SALEH</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Banglish, Swahili, Bangla & English</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button id="themeToggle" 
+                class="p-2.5 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 
+                hover:bg-slate-200 dark:hover:bg-slate-600 transition" title="Toggle Theme">
+                    <i class="fa-solid fa-moon dark:hidden"></i>
+                    <i class="fa-solid fa-sun hidden dark:block"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
+
+        <!-- Engine & Settings Bar -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-200 
+        dark:border-slate-700 flex flex-col md:flex-row items-center justify-between gap-4">
+            <!-- Engine Selection Tabs -->
+            <div class="flex items-center w-full md:w-auto overflow-x-auto pb-2 md:pb-0 gap-2">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mr-2 whitespace-nowrap">
+                    Engine:</span>
+                <button onclick="setEngine('gemini')" id="btn-engine-gemini" 
+                class="engine-tab px-4 py-2 rounded-xl text-sm font-medium transition 
+                flex items-center gap-2 bg-indigo-600 text-white shadow-sm shadow-indigo-500/20">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Google Gemini
+                </button>
+                <!-- <button onclick="setEngine('chatgpt')" id="btn-engine-chatgpt" class="engine-tab px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600">
+                    <i class="fa-solid fa-robot"></i> ChatGPT
+                </button>
+                <button onclick="setEngine('translator')" id="btn-engine-translator" class="engine-tab px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600">
+                    <i class="fa-solid fa-globe"></i> Google Translator
+                </button> -->
+            </div>
+
+            <!-- Custom API Key input for ChatGPT / Gemini if desired -->
+            <div class="flex items-center w-full md:w-auto gap-2">
+                <div class="relative w-full md:w-64">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-key text-xs"></i>
+                    </span>
+                    <input type="password" id="customApiKey" placeholder="Custom API Key (Optional)" class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-200">
+                </div>
+            </div>
+        </div>
+
+        <!-- Translator Workspace -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-grow">
+
+            <!-- Left Box: Source Input -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col h-[450px] lg:h-[550px] overflow-hidden">
+                <!-- Toolbar -->
+                <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                    <div class="flex items-center space-x-2">
+                        <select id="sourceLang" class="bg-transparent font-semibold text-sm text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer">
+                            <option value="auto">Detect Language</option>
+                            <option value="banglish">Banglish (Romanized Bengali)</option>
+                            <option value="bn">Bengali (বাংলা)</option>
+                            <option value="sw">Swahili (Kiswahili)</option>
+                            <option value="en" selected>English</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <button onclick="clearInput()" class="p-2 text-slate-400 hover:text-rose-500 rounded-lg transition" title="Clear text">
+                            <i class="fa-solid fa-trash-can text-sm"></i>
+                        </button>
+                        <button onclick="pasteClipboard()" class="p-2 text-slate-400 hover:text-indigo-600 rounded-lg transition" title="Paste from clipboard">
+                            <i class="fa-solid fa-paste text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Textarea Area -->
+                <div class="flex-grow relative p-4 flex flex-col">
+                    <textarea id="sourceText" placeholder="Type or paste text here... (Supports Banglish e.g. 'Kemon acho?', Swahili, Bangla, English)" class="w-full flex-grow bg-transparent resize-none focus:outline-none text-slate-800 dark:text-slate-100 placeholder-slate-400 text-base leading-relaxed"></textarea>
+                </div>
+
+                <!-- Footer Stats & Translate Action -->
+                <div class="px-4 py-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                    <span id="charCount" class="text-xs text-slate-400">0 characters</span>
+                    <button onclick="performTranslation()" id="translateBtn" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-xl shadow-lg shadow-indigo-500/25 transition flex items-center gap-2">
+                        <i class="fa-solid fa-language"></i> Translate
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Box: Translated Output -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col h-[450px] lg:h-[550px] overflow-hidden relative">
+                <!-- Toolbar -->
+                <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                    <div class="flex items-center space-x-2">
+                        <select id="targetLang" class="bg-transparent font-semibold text-sm text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer">
+                            <option value="en">English</option>
+                            <option value="bn" selected>Bengali (বাংলা)</option>
+                            <option value="banglish">Banglish (Romanized Bengali)</option>
+                            <option value="sw">Swahili (Kiswahili)</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <button onclick="speakOutput()" class="p-2 text-slate-400 hover:text-indigo-600 rounded-lg transition" title="Listen to translation">
+                            <i class="fa-solid fa-volume-high text-sm"></i>
+                        </button>
+                        <button onclick="copyOutput()" class="p-2 text-slate-400 hover:text-indigo-600 rounded-lg transition" title="Copy to clipboard">
+                            <i class="fa-solid fa-copy text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Output Area / Loading Overlay -->
+                <div class="flex-grow relative p-4 flex flex-col overflow-y-auto">
+                    <div id="loadingOverlay" class="absolute inset-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 hidden">
+                        <div class="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-3"></div>
+                        <p id="loadingText" class="text-xs font-medium text-slate-600 dark:text-slate-300">Translating via Gemini AI...</p>
+                    </div>
+                    <div id="outputText" class="w-full flex-grow text-slate-800 dark:text-slate-100 text-base leading-relaxed whitespace-pre-wrap select-all">Translation will appear here...</div>
+                </div>
+
+                <!-- Footer Meta -->
+                <div class="px-4 py-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50">
+                    <span id="engineBadge" class="text-xs px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-medium">Engine: Google Gemini</span>
+                    <span id="translationStatus" class="text-xs text-slate-400">Ready</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Quick Phrase Cards for Banglish / Swahili / Bangla -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200 dark:border-slate-700">
+            <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-bolt text-amber-500"></i> Quick Sample Phrases
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                <button onclick="loadSample('Kemon asen sir? Apni ki kono gari lagbe?', 'banglish', 'bn')" class="p-3 text-left rounded-xl bg-slate-50 dark:bg-slate-900/50 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 border border-slate-200 dark:border-slate-700/50 transition group">
+                    <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400 block mb-1">Banglish ➔ Bengali</span>
+                    <span class="text-xs text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200">"Kemon sir? Apnar ki kno gari lagbe?"</span>
+                </button>
+                <button onclick="loadSample('Habari gani, bwana? Je, unahitaji gari lolote?', 'sw', 'en')" class="p-3 text-left rounded-xl bg-slate-50 dark:bg-slate-900/50 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 border border-slate-200 dark:border-slate-700/50 transition group">
+                    <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400 block mb-1">Swahili ➔ English</span>
+                    <span class="text-xs text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200">"Habari gani, bwana? Je, unahitaji gari lolote?"</span>
+                </button>
+                <button onclick="loadSample('SBT japan apnar jhonno 24 hours ache', 'banglish', 'en')" class="p-3 text-left rounded-xl bg-slate-50 dark:bg-slate-900/50 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 border border-slate-200 dark:border-slate-700/50 transition group">
+                    <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400 block mb-1">Banglish ➔ English</span>
+                    <span class="text-xs text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200">"Ami tomake onek bhalobashi amar shona."</span>
+                </button>
+                <button onclick="loadSample('Karibu sana TanHabari gani, bwana?.', 'sw', 'bn')" class="p-3 text-left rounded-xl bg-slate-50 dark:bg-slate-900/50 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 border border-slate-200 dark:border-slate-700/50 transition group">
+                    <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400 block mb-1">Swahili ➔ Bengali</span>
+                    <span class="text-xs text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200">"Karibu sana Tanzania, chakula kitamu."</span>
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-3 rounded-xl shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-3 text-sm font-medium">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastMessage">Copied to clipboard!</span>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        // State Management
+        let currentEngine = 'gemini';
+
+        // Dark Mode Toggle Setup
+        const themeToggleBtn = document.getElementById('themeToggle');
+        themeToggleBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+
+        // Character count listener
+        const sourceTextEl = document.getElementById('sourceText');
+        const charCountEl = document.getElementById('charCount');
+        sourceTextEl.addEventListener('input', () => {
+            const len = sourceTextEl.value.length;
+            charCountEl.textContent = `${len} character${len === 1 ? '' : 's'}`;
+        });
+
+        function setEngine(engine) {
+            currentEngine = engine;
+            document.querySelectorAll('.engine-tab').forEach(btn => {
+                btn.className = "engine-tab px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600";
+            });
+            const activeBtn = document.getElementById(`btn-engine-${engine}`);
+            activeBtn.className = "engine-tab px-4 py-2 rounded-xl text-sm font-medium transition flex items-center gap-2 bg-indigo-600 text-white shadow-sm shadow-indigo-500/20";
+            
+            const badge = document.getElementById('engineBadge');
+            if (engine === 'gemini') badge.textContent = 'Engine: Google Gemini';
+            else if (engine === 'chatgpt') badge.textContent = 'Engine: ChatGPT';
+            else if (engine === 'translator') badge.textContent = 'Engine: Google Translator';
+        }
+
+        function loadSample(text, srcLang, tgtLang) {
+            document.getElementById('sourceText').value = text;
+            document.getElementById('sourceLang').value = srcLang;
+            document.getElementById('targetLang').value = tgtLang;
+            sourceTextEl.dispatchEvent(new Event('input'));
+            performTranslation();
+        }
+
+        function clearInput() {
+            document.getElementById('sourceText').value = '';
+            document.getElementById('outputText').textContent = 'Translation will appear here...';
+            charCountEl.textContent = '0 characters';
+        }
+
+        function pasteClipboard() {
+            navigator.clipboard.readText().text().then(clipText => {
+                document.getElementById('sourceText').value = clipText;
+                sourceTextEl.dispatchEvent(new Event('input'));
+            }).catch(() => {
+                showToast('Clipboard access denied or unsupported', 'error');
+            });
+        }
+
+        function copyOutput() {
+            const text = document.getElementById('outputText').innerText;
+            if (!text || text === 'Translation will appear here...') return;
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textArea);
+            showToast('Translation copied to clipboard!');
+        }
+
+        function speakOutput() {
+            const text = document.getElementById('outputText').innerText;
+            const targetLang = document.getElementById('targetLang').value;
+            if (!text || text === 'Translation will appear here...') return;
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                if (targetLang === 'bn') utterance.lang = 'bn-BD';
+                else if (targetLang === 'sw') utterance.lang = 'sw-KE';
+                else if (targetLang === 'banglish') utterance.lang = 'bn-BD';
+                else utterance.lang = 'en-US';
+                window.speechSynthesis.speak(utterance);
+            } else {
+                showToast('Text-to-speech not supported in this browser', 'error');
+            }
+        }
+
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+            toastMsg.textContent = msg;
+            if (type === 'error') {
+                toastIcon.className = 'fa-solid fa-circle-exclamation text-rose-400';
+            } else {
+                toastIcon.className = 'fa-solid fa-circle-check text-emerald-400';
+            }
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        async function performTranslation() {
+            const text = document.getElementById('sourceText').value.trim();
+            const sourceLang = document.getElementById('sourceLang').value;
+            const targetLang = document.getElementById('targetLang').value;
+            const customApiKey = document.getElementById('customApiKey').value.trim();
+
+            if (!text) {
+                showToast('Please enter text to translate', 'error');
+                return;
+            }
+
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const loadingText = document.getElementById('loadingText');
+            const translationStatus = document.getElementById('translationStatus');
+            const outputTextEl = document.getElementById('outputText');
+
+            loadingOverlay.classList.remove('hidden');
+            translationStatus.textContent = 'Translating...';
+
+            try {
+                let translatedResult = '';
+
+                if (currentEngine === 'gemini') {
+                    loadingText.textContent = 'Translating via Google Gemini...';
+                    translatedResult = await translateWithGemini(text, sourceLang, targetLang, customApiKey);
+                } else if (currentEngine === 'chatgpt') {
+                    loadingText.textContent = 'Translating via ChatGPT...';
+                    translatedResult = await translateWithChatGPT(text, sourceLang, targetLang, customApiKey);
+                } else {
+                    loadingText.textContent = 'Translating via Google Translator...';
+                    translatedResult = await translateWithMyMemory(text, sourceLang, targetLang);
+                }
+
+                outputTextEl.textContent = translatedResult;
+                translationStatus.textContent = 'Translated successfully';
+            } catch (err) {
+                console.error(err);
+                // Fallback to MyMemory if AI engines encounter key issues
+                try {
+                    translationStatus.textContent = 'AI fallback to standard translator...';
+                    const fallbackResult = await translateWithMyMemory(text, sourceLang, targetLang);
+                    outputTextEl.textContent = fallbackResult;
+                    showToast('Switched to standard translator due to AI API limit.', 'error');
+                } catch (fallbackErr) {
+                    outputTextEl.textContent = 'Translation error occurred. Please check network or API key.';
+                    showToast('Translation failed', 'error');
+                }
+            } finally {
+                loadingOverlay.classList.add('hidden');
+            }
+        }
+
+        // Gemini AI Translation Engine (with GEMINI_API integration)
+        async function translateWithGemini(text, sourceLang, targetLang, apiKey) {
+            const langNames = {
+                'auto': 'Auto-detected Language',
+                'banglish': 'Banglish (Romanized Bengali / Phonetic Bengali)',
+                'bn': 'Bengali (বাংলা)',
+                'sw': 'Swahili (Kiswahili)',
+                'en': 'English'
+            };
+
+            const srcDesc = langNames[sourceLang] || sourceLang;
+            const tgtDesc = langNames[targetLang] || targetLang;
+
+            const prompt = `You are an expert polyglot translator specializing in complex vernaculars including Banglish (Romanized Bengali text written in English alphabet e.g., "Kemon acho?"), formal/informal Bengali, Swahili (Kiswahili), and English.
+Translate the following text accurately from ${srcDesc} to ${tgtDesc}. 
+Maintain conversational tone, idioms, and nuances accurately. 
+Output ONLY the final translated text without any extra explanations, notes, or conversational filler.
+
+Text to translate:
+"""
+${text}
+"""`;
+
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: {
+                    parts: [{ text: "You are a professional multi-lingual translation engine supporting Banglish, Bengali, Swahili, and English. Always output only direct translations." }]
+                }
+            };
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            // Exponential backoff retry logic
+            let response;
+            let retries = 3;
+            let delay = 1000;
+
+            for (let i = 0; i < retries; i++) {
+                try {
+                    response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (response.ok) break;
+                } catch (e) {
+                    if (i === retries - 1) throw e;
+                }
+                await new Promise(res => setTimeout(res, delay));
+                delay *= 2;
+            }
+
+            if (!response || !response.ok) {
+                throw new Error('Gemini API request failed');
+            }
+
+            const result = await response.json();
+            const candidate = result.candidates?.[0];
+            if (candidate && candidate.content?.parts?.[0]?.text) {
+                return candidate.content.parts[0].text.trim();
+            } else {
+                throw new Error('Invalid Gemini response structure');
+            }
+        }
+
+        // ChatGPT Simulator / API Engine
+        async function translateWithChatGPT(text, sourceLang, targetLang, apiKey) {
+            if (!apiKey) {
+                // Simulate ChatGPT intelligence for Banglish/Swahili/English if no key provided
+                await new Promise(r => setTimeout(r, 1000));
+                return `[ChatGPT simulated translation of "${text}" from ${sourceLang} to ${targetLang}]: Accurate localized phrasing applied.`;
+            }
+
+            const prompt = `Translate the following text from ${sourceLang} to ${targetLang}. Return only the translation. Text: ${text}`;
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: "gpt-3.5-turbo",
+                    messages: [{ role: "user", content: prompt }]
+                })
+            });
+
+            if (!response.ok) throw new Error('ChatGPT API error');
+            const data = await response.json();
+            return data.choices[0].message.content.trim();
+        }
+
+        // Standard Google Translator bridge via MyMemory API
+        async function translateWithMyMemory(text, sourceLang, targetLang) {
+            // Map 'banglish' to 'en' or 'bn' for standard engine if needed
+            let langPair = `${sourceLang === 'banglish' ? 'en' : sourceLang}|${targetLang === 'banglish' ? 'bn' : targetLang}`;
+            if (sourceLang === 'auto') langPair = `|${targetLang === 'banglish' ? 'bn' : targetLang}`;
+
+            const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${langPair}`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('Translator network error');
+            const data = await res.json();
+            if (data && data.responseData && data.responseData.translatedText) {
+                return data.responseData.translatedText;
+            } else {
+                throw new Error('Translation service unavailable');
+            }
+        }
+    </script>
+</body>
+</html>
